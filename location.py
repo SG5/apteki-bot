@@ -1,19 +1,21 @@
 import urllib2
 import json
 import mwparserfromhell
+import threading
 from functools import partial
 
 URL = "https://ru.wikipedia.org/w/api.php?action=query&pageids=122980" \
       "&prop=revisions&rvprop=content&rvsection=1&format=json"
 
 _subway_list = []
-
+_subway_lock = threading.RLock()
 
 def get_nearest_subway(coord):
     global _subway_list
 
-    if not _subway_list:
-        _subway_list = _get_subway_list()
+    with _subway_lock:
+        if not _subway_list:
+            _subway_list = _get_subway_list()
 
     return min(_subway_list, key=partial(_distance, coord))
 

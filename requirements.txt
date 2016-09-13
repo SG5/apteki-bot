@@ -6,3 +6,5 @@
 # Note: The `lib` directory is added to `sys.path` by `appengine_config.py`.
 Flask==0.10
 python-telegram-bot==4.2
+lxml==2.3.5
+mwparserfromhell==0.4.3
