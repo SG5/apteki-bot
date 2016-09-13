@@ -10,14 +10,13 @@ DRUG_GET_URL = "http://www.medlux.ru/" + urllib.quote("лекарства/")
 
 
 def drug_handler(text):
-    response = urllib2.urlopen(DRUG_GET_URL + urllib.quote(text))
-    parser = html.parse(response).getroot()
+    drugs_list = get_drug_list(text)
 
-    drugs = get_drug_list(parser)
-    if len(drugs):
+    if len(drugs_list):
         keyboard = []
-        for drug in drugs:
-            drug_text = drug.find("span").text
+        for drug in drugs_list:
+            drug_text = drug.find("span").text.encode('utf8')
+
             if text == drug_text:
                 return {
                     "text": "Выбран препарат {}".format(drug_text),
@@ -25,9 +24,10 @@ def drug_handler(text):
                 }
             keyboard.append(drug_text)
 
-        if 6 < len(drugs):
-            return {"text": "Слишком много препаратов с таким названием, " \
-                          "попробуйте уточнить название"}
+        if 6 < len(drugs_list):
+            return {"text": "Слишком много препаратов с таким названием, "
+                            "попробуйте уточнить название",
+                    "reply_markup": KeyboardHide()}
 
         reply_markup = KeyboardMarkup([keyboard])
         return {"text": "Какой препарат вам подходит?", "reply_markup": reply_markup}
@@ -35,7 +35,13 @@ def drug_handler(text):
     return {"text": "Такого препарата не найдено"}
 
 
-def get_drug_list(parser):
+def get_drug_list(text):
+    response = urllib2.urlopen(DRUG_GET_URL + urllib.quote(text))
+    parser = html.parse(response).getroot()
+    return parse_drug_list(parser)
+
+
+def parse_drug_list(parser):
     try:
         return parser \
             .get_element_by_id("result-list") \
