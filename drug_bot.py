@@ -1,5 +1,5 @@
 from google.appengine.api import app_identity
-from location import get_nearest_subway
+from location import location_handler
 from drug import drug_handler
 from hashlib import sha256
 from flask import request
@@ -24,8 +24,8 @@ def webhook_handler():
         kwargs = drug_handler(update.message.text.encode('utf-8'))
         bot.sendMessage(chat_id=chat_id, **kwargs)
     elif update.message.location:
-        nearest = get_nearest_subway((update.message.location.latitude, update.message.location.longitude))
-        bot.sendMessage(chat_id=chat_id, text=nearest[2])
+        kwargs = location_handler(update.message.location)
+        bot.sendMessage(chat_id=chat_id, **kwargs)
 
     return 'ok'
 

@@ -15,7 +15,7 @@ def drug_handler(text):
     if len(drugs_list):
         keyboard = []
         for drug in drugs_list:
-            drug_text = drug.find("span").text.encode('utf8')
+            drug_text = drug.find("span").text.encode('utf-8')
 
             if text == drug_text:
                 return {
