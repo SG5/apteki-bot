@@ -4,6 +4,7 @@ import urllib2
 import json
 import mwparserfromhell
 import threading
+import database
 from functools import partial
 from telegram import ReplyKeyboardHide as KeyboardHide
 
@@ -19,9 +20,23 @@ _drugstores_list = []
 _location_lock = threading.RLock()
 
 
-def location_handler(location):
+def location_handler(message):
+
+    location = message.location
+    t = None
+
+    if message.from_user:
+        t = threading.Thread(target=database.add_location, args=(
+            message.from_user.id,
+            {"latitude": location.latitude, "longitude": location.longitude},
+        ))
+        t.start()
+
     subways = get_nearest_subway((location.latitude, location.longitude))
     stores = get_nearest_store((location.latitude, location.longitude))
+
+    if t:
+        t.join()
 
     text = "Ближайшее к вам метро: {}\r\n" \
            "Рядом есть аптека {} по адресу {}"\

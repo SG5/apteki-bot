@@ -23,8 +23,8 @@ def webhook_handler():
     if update.message.text:
         kwargs = drug_handler(update.message.text.encode('utf-8'))
         bot.sendMessage(chat_id=chat_id, **kwargs)
-    elif update.message.location:
-        kwargs = location_handler(update.message.location)
+    elif update.message:
+        kwargs = location_handler(update.message)
         bot.sendMessage(chat_id=chat_id, **kwargs)
 
     return 'ok'
