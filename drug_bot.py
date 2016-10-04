@@ -1,10 +1,11 @@
 from google.appengine.api import app_identity
 from location import location_handler
-from drug import drug_handler
+from drug import message_handler
 from hashlib import sha256
 from flask import request
 from secret import get_bot_token as token
 import telegram
+from telegram import ReplyKeyboardHide as KeyboardHide
 
 bot = telegram.Bot(token=token())
 WEB_HOOK_URL = sha256(token()).hexdigest()
@@ -18,13 +19,17 @@ def webhook_handler():
         return 'ok'
 
     chat_id = update.message.chat.id
+    kwargs = None
 
     # Telegram understands UTF-8, so encode text for unicode compatibility
     if update.message.text:
-        kwargs = drug_handler(update.message.text.encode('utf-8'))
-        bot.sendMessage(chat_id=chat_id, **kwargs)
-    elif update.message:
+        kwargs = message_handler(update.message)
+    elif update.message.location:
         kwargs = location_handler(update.message)
+
+    if kwargs:
+        if not "reply_markup" in kwargs:
+            kwargs["reply_markup"] = KeyboardHide()
         bot.sendMessage(chat_id=chat_id, **kwargs)
 
     return 'ok'
