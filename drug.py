@@ -19,7 +19,7 @@ def message_handler(message):
     if not location:
         return {"text": "Для поиска лекарств отправь своё местоположение"}
 
-    return get_drugs_message(message.text.encode('utf-8'))
+    return get_drugs_message(find_drugs(message.text.encode('utf-8')))
 
 
 def find_drugs(text):
@@ -40,9 +40,7 @@ def find_drugs(text):
     return result
 
 
-def get_drugs_message(text):
-    drugs_list = find_drugs(text)
-
+def get_drugs_message(drugs_list):
     if not drugs_list:
         return {"text": "Такого препарата не найдено"}
 
