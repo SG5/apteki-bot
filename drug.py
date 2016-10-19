@@ -19,31 +19,42 @@ def message_handler(message):
     if not location:
         return {"text": "Для поиска лекарств отправь своё местоположение"}
 
-    return find_drug(message.text.encode('utf-8'))
+    return get_drugs_message(message.text.encode('utf-8'))
 
 
-def find_drug(text):
+def find_drugs(text):
     drugs_list = get_drug_list(text)
 
-    if not len(drugs_list):
-        return {"text": "Такого препарата не найдено"}
+    if not drugs_list:
+        return []
 
-    keyboard = []
+    result = []
     for drug in drugs_list:
         drug_text = drug.find("span").text.encode('utf-8')
 
         if text == drug_text:
-            return {
-                "text": "Выбран препарат {}".format(drug_text),
-            }
-        keyboard.append(drug_text)
+            return [drug_text]
+
+        result.append(drug_text)
+
+    return result
+
+
+def get_drugs_message(text):
+    drugs_list = find_drugs(text)
+
+    if not drugs_list:
+        return {"text": "Такого препарата не найдено"}
+
+    if 1 == len(drugs_list):
+        return {"text": "Выбран препарат {}".format(drugs_list[0])}
 
     if 6 < len(drugs_list):
         return {"text": "Слишком много препаратов с таким названием, "
                         "попробуйте уточнить название",
                 }
 
-    reply_markup = KeyboardMarkup([keyboard])
+    reply_markup = KeyboardMarkup([drugs_list])
     return {"text": "Какой препарат вам подходит?", "reply_markup": reply_markup}
 
 
@@ -69,5 +80,5 @@ if "__main__" == __name__:
         print("Usage: %s drug" % sys.argv[0])
         sys.exit()
 
-    drugs = find_drug(sys.argv[1])
+    drugs = find_drugs(sys.argv[1])
     print(drugs)
