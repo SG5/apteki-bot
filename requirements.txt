@@ -7,5 +7,5 @@
 Flask==1.1.1
 gcloud==0.18.1
 python-telegram-bot==4.2
-lxml==2.3.5
+lxml==4.6.3
 mwparserfromhell==0.4.3
